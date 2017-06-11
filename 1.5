@@ -1,0 +1,15 @@
+normal order:
+(test 0 (p))
+((if (= x 0)
+     0
+     y)
+  0
+  (p))
+0
+If the interpreter use normal-order evaluation, (test 0 (p)) will
+evaluates to 0.
+
+applicative order:
+If the interpreter use applicative-order evaluation,
+It will evalute (p) to (p), then latter (p) to (p),
+recursively forever.
