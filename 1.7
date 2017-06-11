@@ -1,0 +1,5 @@
+(define (good-enough? guess x)
+  (< (/ (abs (- guess
+		(improve guess x)))
+	guess)
+     0.000001))
