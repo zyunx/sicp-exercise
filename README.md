@@ -1,2 +1,2 @@
 # sicp-exercise
-My exercise of scip book: Structure and Interpretation of Computer Program
+My exercise of sicp book: Structure and Interpretation of Computer Program
