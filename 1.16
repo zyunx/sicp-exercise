@@ -1,0 +1,8 @@
+(define (fast-expt-it b n a)
+  (cond ((= n 0) a)
+	((odd? n) (fast-expt-it b
+				(- n 1)
+				(* a b)))
+	(else (fast-expt-it (square b)
+			    (/ n 2)
+			    a))))
