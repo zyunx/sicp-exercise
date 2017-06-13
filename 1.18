@@ -1,0 +1,13 @@
+(define (fast-mul-it a b c)
+  (cond ((= b 0) c)
+	((even? b) (fast-mul-it (double a) (halve b) c))
+	(else (fast-mul-it a (- b 1) (+ c a)))))
+
+(fast-mul-it 123 11 0)
+;Value: 1353
+
+
+(define (double x) (+ x x))
+
+(define (halve x) (/ x 2))
+
