@@ -1,0 +1,21 @@
+
+(define (fermat-test-all n)
+  (fermat-test-all-it 1 n))
+
+(define (fermat-test-all-it i n)
+  (cond ((< i n)
+	 (cond ((not (fermat-test i n))
+		(display i) (newline)))
+	 (fermat-test-all-it (+ i 1) n))))
+
+(define (fermat-test a n)
+  (= (expmod a n n) a))
+
+(define (expmod a n m)
+  (cond ((= n 0) (remainder 1 m))
+	((even? n) (remainder (square (expmod a (/ n 2) m))
+			  m))
+	(else (remainder (* a
+			    (expmod a (- n 1) m))
+			 m))))
+
