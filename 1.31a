@@ -1,0 +1,33 @@
+(define (product term a next b)
+  (if (> a b)
+      1
+      (* (term a)
+	 (product term (next a) next b))))
+;Value: product
+
+(define (factorial n)
+  
+  (define (term x) x)
+
+  (define (next x) (+ x 1))
+
+  (product term 1 next n))
+;Value: factorial
+
+(define (pi n)
+
+  (define (next x) (+ x 2))
+
+  (define (term x) (/ (* (- x 1)
+			 (+ x 1))
+		      (square x)))
+
+  (* 4 (product term 3.0 next n)))
+;Value: pi
+
+
+
+(pi 100)
+;Value: 3.1573396892175642
+
+(pi 10000)
