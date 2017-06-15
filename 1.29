@@ -1,0 +1,32 @@
+(define (sum term a next b)
+  (if (> a b)
+      0
+      (+ (term a)
+	 (sum term (next a) next b))))
+;Value: sum
+
+(define (simpson f a b n)
+
+  (define h
+    (/ (- b a) n))
+
+  (define (next k)
+    (+ k 1))
+
+  (define (term k)
+    (* (f (+ a (* k h)))
+       (if (even? k) 2 4)))
+
+  (* (/ h 3)
+     (+ (term 0)
+	(sum term 1 next (- n 1))
+	(term n))))
+;Value: simpson
+
+(define (cube x)
+  (* x x x))
+;Value: cube
+
+(simpson cube 0 1.0 1000)
+;Value: .2503333333333336
+
