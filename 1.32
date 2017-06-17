@@ -1,0 +1,33 @@
+(define (accumulate combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a) (accumulate combiner
+				     null-value
+				     term
+				     (next a)
+				     next
+				     b))))
+;Value: accumulate
+
+(define (accumulate combiner null-value term a next b)
+  (define (accumulate-iter result a)
+    (if (> a b)
+	result
+	(accumulate-iter (combiner result (term a))
+			 (next a))))
+  (accumulate-iter null-value a))
+;Value: accumulate
+
+
+(define (sum term a next b)
+  (accumulate + 0 term a next b))
+
+(define (product term a next b)
+  (accumulate * 1 term a next b))
+;Value: product
+
+(define (inc n) (+ n 1))
+
+(sum square 1 inc 2)
+
+(product square 1 inc 3)
