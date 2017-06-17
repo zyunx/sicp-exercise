@@ -1,0 +1,29 @@
+(define (cont-frac n d k)
+  (define (cont-frac-r i)
+    (/ (n i)
+       (if (< i k)
+	   (+ (d i) (cont-frac-r (+ i 1)))
+	   (d i))))
+  (cont-frac-r 1))
+
+(define (cont-frac n d k)
+  (define (cont-frac-iter result i)
+    (if (<= i 1)
+	(/ (n i)
+	   (+ result
+	      (d i)))
+	(cont-frac-iter (/ (n i)
+			   (+ result
+			      (d i)))
+			(- i 1))))
+  (cont-frac-iter 0 k))
+
+(define (tan-cf x k)
+  (cont-frac (lambda (i) (if (> i 1)
+			     (- 0 (square x))
+			     x))
+	     (lambda (i) (- (* 2 i) 1))
+	     k))
+
+(tan-cf (/ pi 4) 100)
+
