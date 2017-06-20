@@ -1,0 +1,24 @@
+(define (cons a b)
+  (cond ((= 0 a) (cond ((= 0 b) 1)
+		       (else (* 3 (cons 0
+					(- b 1))))))
+	(else (* 2 (cons (- a 1)
+			 b)))))
+;Value: cons
+
+(define (exponent p b)
+  (if (= 0 (remainder p b))
+      (+ 1 (exponent (/ p b) b))
+      0))
+;Value: exponent
+
+(define (car p)
+  (exponent p 2))
+;Value: car
+
+(define (cdr p)
+  (exponent p 3))
+;Value: cdr
+
+(cdr (cons 2 3))
+;Value: 3
