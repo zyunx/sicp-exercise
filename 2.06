@@ -1,0 +1,29 @@
+(define (inc x) (+ 1 x))
+;Value: inc
+
+(define zero (lambda (f) (lambda (x) x)))
+;Value: zero
+
+((zero inc) 0)
+;Value: 0
+
+(define one (lambda (f) (lambda (x) (f x))))
+;Value: one
+
+(define two (lambda (f) (lambda (x) (f (f x)))))
+;Value: two
+
+(define (add n m)
+  (lambda (f) (lambda (x) ((m f) ((n f) x)))))
+;Value: add
+
+(((add (add two two) one) inc) 0)
+;Value: 5
+
+((two inc) 0)
+;Value: 2
+
+
+((one inc) 0)
+;Value: 1
+
