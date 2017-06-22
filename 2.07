@@ -1,0 +1,8 @@
+(define (make-interval a b) (cons a b))
+;Value: make-interval
+
+(define (upper-bound i) (car i))
+;Value: upper-bound
+
+(define (lower-bound i) (cdr i))
+;Value: lower-bound
