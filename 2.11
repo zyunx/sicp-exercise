@@ -1,0 +1,70 @@
+(define (make-interval a b) (cons a b))
+
+(define (upper-bound i) (cdr i))
+
+(define (lower-bound i) (car i))
+
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x) (lower-bound y))
+		 (+ (upper-bound x) (upper-bound y))))
+;Value: add-interval
+
+(define (sub-interval a b)
+  (make-interval (- (lower-bound a)
+		    (upper-bound b))
+		 (- (upper-bound a)
+		    (lower-bound b))))
+;Value: sub-interval
+
+(define (mul-interval x y)
+  (let ((xl (lower-bound x))
+	(xh (upper-bound x))
+	(yl (lower-bound y))
+	(yh (upper-bound y)))
+    (cond ((>= xl 0) (cond ((>= yl 0) (make-interval (* xl yl)
+						     (* xh yh)))
+			   ((<= yh 0) (make-interval (* xh yl)
+						     (* xl yh)))
+			   (else (make-interval (* yl xh)
+						(* yh xh)))))
+	  ((<= xh 0) (cond ((>= yl 0) (make-interval (* xl yh)
+						     (* xh yl)))
+			   ((<= yh 0) (make-interval (* xl yl)
+						     (* xh yh)))
+			   (else (make-interval (* xl yh)
+						(* xl yl)))))
+	  (else (cond ((>= yl 0) (make-interval (* xl yh)
+						(* xh yh)))
+		      ((<= yh 0) (make-interval (* xh yl)
+						(* xl yl)))
+		      (else (make-interval (min (* xl yh)
+						(* xh yl))
+					   (max (* xl yl)
+						(* xh yh)))))))))
+;Value: mul-interval
+
+(define (mul-interval x y)
+  (let ((p1 (* (lower-bound x) (lower-bound y)))
+	(p2 (* (lower-bound x) (upper-bound y)))
+	(p3 (* (upper-bound x) (lower-bound y)))
+	(P4 (* (upper-bound x) (upper-bound y))))
+    (make-interval (min p1 p2 p3 p4)
+		   (max p1 p2 p3 p4))))
+;Value: mul-interval
+
+(define (div-interval x y)
+  (let ((u (upper-bound y))
+	(l (lower-bound y)))
+    (if (and (<= l 0)
+	     (>= u 0))
+	(error "interval cross zero")
+	(mul-interval x (make-interval (/ 1.0 (upper-bound y))
+				     (/ 1.0 (lower-bound y)))))))
+
+(mul-interval (make-interval -2 4) (make-interval -3 1))
+;Value 29: (-12 . 6)
+
+;Value 28: (-2 . 4)
+
+
+;Value 27: (-2 . -.1)
