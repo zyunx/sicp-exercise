@@ -27,23 +27,27 @@
 ;Value: is-mobile?
 
 
-(define (total-weight mobile)
-  (define (ttb branch)
-    (let ((s (branch-structure branch)))
-      (if (is-mobile? s)
-	  (ttm s)
-	  s)))
-  (define (ttm mobile)
-    (+ (ttb (left-branch mobile))
-       (ttb (right-branch mobile))))
+(define (total-weight-branch branch)
+  (let ((s (branch-structure branch)))
+    (if (is-mobile? s)
+	(total-weight-mobile s)
+	s)))
+;Value: total-weight-branch
 
-  (ttm mobile))
+(define (total-weight-mobile mobile)
+  (+ (total-weight-branch (left-branch mobile))
+     (total-weight-branch (right-branch mobile))))
+;Value: total-weight-mobile
+
+(define (total-weight mobile)
+  (total-weight-mobile mobile))
 ;Value: total-weight
 
 (total-weight (make-mobile (make-branch 1 1)
 			   (make-branch 2 (make-mobile (make-branch 1 2)
 						       (make-branch 1 3)))))
 ;Value: 6
+
 
 ;Value: 6
 
@@ -62,3 +66,26 @@
 (define (branch-structure branch)
   (cdr branch))
 ;Value: branch-structure
+
+(define (balanced? mobile)
+  (let ((lb (left-branch mobile))
+	(rb (right-branch mobile)))
+    (and (= (* (branch-length lb)
+	       (total-weight-branch lb))
+	    (* (branch-length rb)
+	       (total-weight-branch rb)))
+	 (if (is-mobile? (branch-structure lb))
+	     (balanced? (branch-structure lb))
+	     true)
+	 (if (is-mobile? (branch-structure rb))
+	     (balanced? (branch-structured rb))
+	     true))))
+;Value: balanced?
+
+(balanced? (make-mobile (make-branch 1 
+				     (make-mobile (make-branch 2 1)
+						  (make-branch 1 2))) 
+			(make-branch 3 1)))
+;Value: #t
+
+
