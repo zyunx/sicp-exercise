@@ -1,0 +1,14 @@
+(define (count-change amount denos)
+  (define (first-denomination denos)
+    (car denos))
+  (cond ((= amount 0) 1)
+	((< amount 0) 0)
+	((null? denos) 0)
+	(else (+ (count-change amount
+			       (cdr denos))
+		 (count-change (- amount (first-denomination denos))
+			       denos)))))
+;Value: count-change
+
+(count-change 5 (list 5 2 1))
+;Value: 4
