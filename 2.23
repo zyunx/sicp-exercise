@@ -1,0 +1,12 @@
+(define (for-each action items)
+  (cond ((null? items) true)
+	(else (action (car items)) (for-each action (cdr items)))))
+;Value: for-each
+
+(for-each (lambda (x) (newline) (display x))
+	  (list 57 321 88))
+
+57
+321
+88
+;Value: #t
