@@ -1,0 +1,64 @@
+(define (make-mobile left right)
+  (list left right))
+;Value: make-mobile
+
+(define (make-branch length structure)
+  (list length structure))
+;Value: make-branch
+
+(define (left-branch mobile)
+  (car mobile))
+;Value: left-branch
+
+(define (right-branch mobile)
+  (cadr mobile))
+;Value: right-branch
+
+(define (branch-length branch)
+  (car branch))
+;Value: branch-length
+
+(define (branch-structure branch)
+  (cadr branch))
+;Value: branch-structure
+
+(define (is-mobile? mobile)
+  (pair? mobile))
+;Value: is-mobile?
+
+
+(define (total-weight mobile)
+  (define (ttb branch)
+    (let ((s (branch-structure branch)))
+      (if (is-mobile? s)
+	  (ttm s)
+	  s)))
+  (define (ttm mobile)
+    (+ (ttb (left-branch mobile))
+       (ttb (right-branch mobile))))
+
+  (ttm mobile))
+;Value: total-weight
+
+(total-weight (make-mobile (make-branch 1 1)
+			   (make-branch 2 (make-mobile (make-branch 1 2)
+						       (make-branch 1 3)))))
+;Value: 6
+
+;Value: 6
+
+(define (make-mobile left right)
+  (cons left right))
+;Value: make-mobile
+
+(define (make-branch length structure)
+  (cons length structure))
+;Value: make-branch
+
+(define (right-branch mobile)
+  (cdr mobile))
+;Value: right-branch
+
+(define (branch-structure branch)
+  (cdr branch))
+;Value: branch-structure
