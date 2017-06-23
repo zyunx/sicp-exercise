@@ -1,0 +1,14 @@
+(define (last-pair s)
+  (cond ((null? s) s)
+	((null? (cdr s)) (car s))
+	(else (last-pair (cdr s)))))
+;Value: last-pair
+
+(last-pair (list))
+;Value: ()
+
+(last-pair (list 1))
+;Value: 1
+
+(last-pair (list 1 2 3))
+;Value: 3
