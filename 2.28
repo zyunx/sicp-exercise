@@ -1,0 +1,9 @@
+(define (fringe tree)
+  (cond ((null? tree) tree)
+	((not (pair? tree)) (list tree))
+	(else (append (fringe (car tree))
+		      (fringe (cdr tree))))))
+;Value: fringe
+
+(fringe (list (list 1 2) (list 3 4)))
+;Value 50: (1 2 3 4)
