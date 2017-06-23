@@ -1,0 +1,8 @@
+(define (reverse s)
+  (cond ((null? s) s)
+	(else (append (reverse (cdr s)) (list (car s))))))
+;Value: reverse
+
+(reverse (list 1 2 3 4))
+;Value 19: (4 3 2 1)
+
