@@ -1,0 +1,19 @@
+(define (map-tree proc tree)
+  (cond ((null? tree) tree)
+	((not (pair? tree)) (proc tree))
+	(else (cons (map-tree proc (car tree))
+		    (map-tree proc (cdr tree))))))
+;Value: map-tree
+
+(define (map-tree proc tree)
+  (map (lambda (subtree)
+	 (if (pair? subtree)
+	     (map-tree proc subtree)
+	     (proc subtree)))
+       tree))
+
+;Value: map-tree
+
+(define (square-tree tree)
+  (map-tree (lambda (x) (* x x)) tree))
+;Value: square-tree
