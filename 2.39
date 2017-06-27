@@ -1,0 +1,14 @@
+(define (reverse sequence)
+  (fold-right (lambda (x y) (append y (list x)))
+	      (list)
+	      sequence))
+;Value: reverse
+
+(define (reverse sequence)
+  (fold-left (lambda (x y) (append (list y) x))
+	     (list)
+	     sequence))
+;Value: reverse
+
+(reverse (list 1 2 3 4))
+;Value 30: (4 3 2 1)
