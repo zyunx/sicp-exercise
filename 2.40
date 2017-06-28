@@ -1,0 +1,40 @@
+(define (enumerate-interval b e)
+  (if (> b e)
+      (list)
+      (cons b (enumerate-interval (+ b 1) e))))
+
+(define (flatmap proc seq)
+  (accumulate append (list) (map proc seq)))
+
+(define (accumulate op initial seq)
+  (if (null? seq)
+      initial
+      (op (car seq) (accumulate op initial (cdr seq)))))
+
+(define (unique-pairs n)
+  (flatmap (lambda (i)
+	     (map (lambda (j) (list j i))
+		  (enumerate-interval 1 (- i 1))))
+	   (enumerate-interval 1 n)))
+
+(define (prime? n)
+  (define (divides? d)
+    (= 0 (remainder n d)))
+  (define (prime-test i)
+    (cond ((> (square i) n) true)
+	  ((divides? i) false)
+	  (else (prime-test (+ i 1)))))
+  (prime-test 2))
+
+(define (prime-sum? p)
+  (prime? (+ (car p) (cadr p))))
+
+(define (prime-sum-pairs n)
+  (map (lambda (p)
+	 (let ((j (car p))
+	       (i (cadr p)))
+	   (list j i (+ j i))))
+       (filter prime-sum? (unique-pairs n))))
+
+(prime-sum-pairs 5)
+;Value 22: ((1 2 3) (2 3 5) (1 4 5) (3 4 7) (2 5 7))
