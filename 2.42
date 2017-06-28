@@ -1,0 +1,43 @@
+(define (queens board-size)
+
+  (define empty-board (list))
+
+  (define (adjoin-position new-row k rest-of-queens)
+    (cons (list k new-row) rest-of-queens))
+
+  (define (safe? k positions)
+    (define new-row (car positions))
+
+    (define rest (cdr positions))
+
+    (define (row? p1 p2) (= (cadr p1) (cadr p2)))
+   
+    (define (diagnal? p1 p2)
+      (= (abs (- (car p1) (car p2)))
+	 (abs (- (cadr p1) (cadr p2)))))
+
+    (define (safe-xxx? xxx? rest)
+      (cond ((null? rest) true)
+	    ((xxx? new-row (car rest)) false)
+	    (else (safe-xxx? xxx? (cdr rest)))))
+
+    (and (safe-xxx? row? rest)
+	 (safe-xxx? diagnal? rest)))
+
+  (define (queen-cols k)
+    (if (= k 0)
+	(list empty-board)
+	(filter
+	 (lambda (positions) (safe? k positions))
+	 (flatmap
+	  (lambda (rest-of-queens)
+	    (map (lambda (new-row)
+		   (adjoin-position new-row k rest-of-queens))
+		 (enumerate-interval 1 board-size)))
+	  (queen-cols (- k 1))))))
+
+  (queen-cols board-size))
+
+(queens 4)
+
+;Value 36: (((4 3) (3 1) (2 4) (1 2)) ((4 2) (3 4) (2 1) (1 3)))
