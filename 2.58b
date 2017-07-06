@@ -1,0 +1,99 @@
+(define (deriv exp1 var)
+  (let ((exp (simplify exp1)))
+	(cond ((number? exp) 0)
+	      ((variable? exp)
+	       (if (same-variable? exp var) 1 0))
+	      ((sum? exp)
+	       (make-sum (deriv (addend exp) var)
+			 (deriv (augend exp) var)))
+	      ((product? exp)
+	       (make-sum
+		(make-product (multiplier exp)
+			      (deriv (multiplicand exp) var))
+		(make-product (deriv (multiplier exp) var)
+			      (multiplicand exp))))
+	      ((exponentiation? exp)
+	       (make-product (exponent exp)
+			     (make-product
+			      (make-exponentiation (base exp)
+						   (- (exponent exp) 1))
+			      (deriv (base exp) var))))
+	      (else
+	       (error "unknown expression type -- DERIV" exp)))))
+;Value: deriv
+
+
+(define (variable? x) (symbol? x))
+
+(define (simplify exp)
+  (cond ((number? exp) exp)
+	((variable? exp) exp)
+	((and (pair? exp) (= 1 (length exp)))
+	 (simplify (car exp)))
+	(else exp)))
+;Value: simplify
+
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (eq? v1 v2)))
+
+(define (sum? x)
+  (cond ((< (length x) 3))
+	 false)
+	((eq? (cadr x) '+)
+	 true)
+	(else (sum? (cons (list (car x) (cadr x) (caddr x))
+			  (cdddr x))))))
+
+(define (addend s)
+  (if (eq? '+ (car s))
+      (list)
+      (cons (car s) (addend (cdr s)))))
+
+(define (augend s)
+  (if (eq? '+ (car s))
+      (cdr s)
+      (augend (cdr s))))
+
+(deriv '(x * 3 + x * x + 4 * 3 * (x + y + 2)) 'x)
+;Value 54: (3 + ((x + x) + 12))
+
+(define (product? x)
+  (and (not (variable? (simplify x)))
+       (not (sum? (simplify x)))))
+
+(define (multiplier p)
+  (if (eq? '* (car p))
+      (list)
+      (cons (car p) (multiplier (cdr p)))))
+;Value: multiplier
+
+(define (multiplicand p)
+  (if (eq? '* (car p))
+      (cdr p)
+      (multiplicand (cdr p))))
+
+(define (make-sum c1 c2)
+  (let ((a1 (simplify c1))
+	(a2 (simplify c2)))
+    (cond ((=number? a1 0) a2)
+	   ((=number? a2 0) a1)
+	   ((and (number? a1) (number? a2)) (+ a1 a2))
+	   (else (list a1 '+ a2)))))
+
+
+(define (=number? exp num)
+  (and (number? exp) (= exp num)))
+;Value: =number?
+
+(define (make-product n1 n2)
+  (let ((m1 (simplify n1))
+	(m2 (simplify n2)))
+    (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+	  ((=number? m1 1) m2)
+	  ((=number? m2 1) m1)
+	  ((and (number? m1) (number? m2)) (* m1 m2))
+	  (else (list m1 '* m2)))))
+;Value: make-product
+
+(deriv '(+ x 3) 'x)
+;Value: 1
