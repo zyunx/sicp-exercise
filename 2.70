@@ -1,0 +1,151 @@
+(define (make-leaf symbol weight)
+  (list 'leaf symbol weight))
+;Value: make-leaf
+
+(define (leaf? object)
+  (eq? (car object) 'leaf))
+;Value: leaf?
+
+(define (symbol-leaf x) (cadr x))
+;Value: symbol-leaf
+
+(define (weight-leaf x) (caddr x))
+;Value: weight-leaf
+
+(define (make-code-tree left right)
+  (list left
+	right
+	(append (symbols left) (symbols right))
+	(+ (weight left) (weight right))))
+;Value: make-code-tree
+
+(define (left-branch tree) (car tree))
+;Value: left-branch
+
+(define (right-branch tree) (cadr tree))
+;Value: right-branch
+
+(define (symbols tree)
+  (if (leaf? tree)
+      (list (symbol-leaf tree))
+      (caddr tree)))
+;Value: symbols
+
+(define (weight tree)
+  (if (leaf? tree)
+      (weight-leaf tree)
+      (cadddr tree)))
+;Value: weight
+
+(define (decode bits tree)
+  (define (decode-1 bits current-branch)
+    (if (null? bits)
+	'()
+	(let ((next-branch
+	       (choose-branch (car bits) current-branch)))
+	  (if (leaf? next-branch)
+	      (cons (symbol-leaf next-branch)
+		    (decode-1 (cdr bits) tree))
+	      (decode-1 (cdr bits) next-branch)))))
+  (decode-1 bits tree))
+;Value: decode
+
+(define (choose-branch bit branch)
+  (cond ((= bit 0) (left-branch branch))
+	((= bit 1) (right-branch branch))
+	(else (eroor "bad bit -- CHOOSE-BRANCH" bit))))
+;Value: choose-branch
+
+(define (adjoin-set x set)
+  (cond ((null? set) (list x))
+	((< (weight x) (weight (car set))) (cons x set))
+	(else (cons (car set)
+		    (adjoin-set x (cdr set))))))
+;Value: adjoin-set
+
+(define (make-leaf-set pairs)
+  (if (null? pairs)
+      '()
+      (let ((pair (car pairs)))
+	(adjoin-set (make-leaf (car pair)
+			       (cadr pair))
+		    (make-leaf-set (cdr pairs))))))
+;Value: make-leaf-set
+
+(define (encode message tree)
+  (if (null? message)
+      '()
+      (append (encode-symbol (car message) tree)
+	      (encode (cdr message) tree))))
+;Value: encode
+
+(define (in-symbols a symbol-set)
+  (cond ((null? symbol-set) false)
+	((eq? a (car symbol-set)) true)
+	(else (in-symbols a (cdr symbol-set)))))
+;Value: in-symbols
+
+(define (encode-symbol a tree)
+  (cond ((leaf? tree)
+	 '())
+	((in-symbols a (symbols (left-branch tree)))
+	 (cons 0 (encode-symbol a (left-branch tree))))
+	((in-symbols a (symbols (right-branch tree)))
+	 (cons 1 (encode-symbol a (right-branch tree))))
+	(else (error "not in symbols of tree -- ENCODE-SYMBO" a))))
+;Value: encode-symbol
+
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+;Value: generate-huffman-tree
+
+(define (successive-merge node-set)
+  (if (= 1 (length node-set))
+      (car node-set)
+      (successive-merge
+       (adjoin-set (make-code-tree (car node-set)
+				   (cadr node-set))
+		   (cddr node-set)))))
+;Value: successive-merge
+
+(define sample-tree (generate-huffman-tree '((A 2) (NA 16) (BOOM 1) (SHA 3)
+			       (GET 2) (YIP 9) (JOB 2) (WAH 1))))
+;Value: sample-tree
+
+(define sample-message '(Get a job
+			     Sha na na na na na na na na
+			     Get a job
+			     Sha na na na na na na na na
+			     Wah yip yip yip yip yip yip yip yip yip
+			     Sha boom))
+;Value: sample-message
+
+(length (encode sample-message sample-tree))
+;Value: 84
+
+(length (decode (encode sample-message sample-tree) sample-tree))
+;Value: 36
+
+;Value 29: (get a job sha na na na na na na na na get a job sha na na na na na na na na wah yip yip yip yip yip yip yip yip yip sha boom)
+
+;Value 28: (1 1 1 1 1 1 1 0 0 1 1 1 1 0 1 1 1 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 0 0 1 1 1 1 0 1 1 1 0 0 0 0 0 0 0 0 0 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 1 0 1 1)
+
+
+
+
+
+
+Copyright (C) 2014 Massachusetts Institute of Technology
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Image saved on Saturday May 17, 2014 at 2:39:25 AM
+  Release 9.2 || Microcode 15.3 || Runtime 15.7 || SF 4.41 || LIAR/x86-64 4.118
+  Edwin 3.116
+;You are in an interaction window of the Edwin editor.
+;Type `C-h' for help, or `C-h t' for a tutorial.
+;`C-h m' will describe some commands.
+;`C-h' means: hold down the Ctrl key and type `h'.
+;Package: (user)
+
+
