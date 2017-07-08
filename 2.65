@@ -1,0 +1,180 @@
+(define (entry tree) (car tree))
+;Value: entry
+
+(define (left-branch tree) (cadr tree))
+;Value: left-branch
+
+(define (right-branch tree) (caddr tree))
+;Value: right-branch
+
+(define (make-tree entry left right)
+  (list entry left right))
+;Value: make-tree
+
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+	((= x (entry set)) true)
+	((< x (entry set))
+	 (element-of-set? x (left-branch set)))
+	((> x (entry set))
+	 (element-of-set? x (right-branch set)))))
+;Value: element-of-set?
+
+(define (adjoin-set x set)
+  (cond ((null? set) (make-tree x '() '()))
+	((= x (entry set)) set)
+	((< x (entry set))
+	 (make-tree (entry set)
+		    (adjoin-set x (left-branch set))
+		    (right-branch set)))
+	((> x (entry set))
+	 (make-tree (entry set)
+		    (left-branch set)
+		    (adjoin-set x (right-branch set))))))
+;Value: adjoin-set
+
+(define (tree->list-1 tree)
+  (if (null? tree)
+      '()
+      (append (tree->list-1 (left-branch tree))
+	      (cons (entry tree)
+		    (tree->list-1 (right-branch tree))))))
+
+(define (tree->list-2 tree)
+  (define (copy-to-list tree result-list)
+    (if (null? tree)
+	result-list
+	(copy-to-list (left-branch tree)
+		      (cons (entry tree)
+			    (copy-to-list (right-branch tree)
+					  result-list)))))
+  (copy-to-list tree '()))
+;Value: tree->list-2
+
+(define (list->tree elements)
+  (car (partial-tree elements (length elements))))
+;Value: list->tree
+
+(define (partial-tree elts n)
+  (if (= n 0)
+      (cons '() elts)
+      (let ((left-size (quotient (- n 1) 2)))
+	(let ((left-result (partial-tree elts left-size)))
+	  (let ((left-tree (car left-result))
+		(non-left-elts (cdr left-result))
+		(right-size (- n (+ left-size 1))))
+	    (let ((this-entry (car non-left-elts))
+		  (right-result (partial-tree (cdr non-left-elts)
+					      right-size)))
+	      (let ((right-tree (car right-result))
+		    (remaining-elts (cdr right-result)))
+		(cons (make-tree this-entry left-tree right-tree)
+		      remaining-elts))))))))
+
+(define (union-set set1 set2)
+  (list->tree (union-set-ordered-list
+	       (tree->list-1 set1)
+	       (tree->list-1 set2))))
+
+(define (intersection-set set1 set2)
+  (list->tree (intersection-set-ordered-list
+	       (tree->list-1 set1)
+	       (tree->list-1 set2))))
+;Value: intersection-set
+
+(intersection-set (adjoin-set 2.5
+		       (adjoin-set 1
+				   (adjoin-set 2
+					       (adjoin-set 3 '()))))
+	   (adjoin-set 2.5
+		       (adjoin-set 6
+				   (adjoin-set 4
+					       (adjoin-set 3 '())))))
+;Value 30: (2.5 () (3 () ()))
+
+
+(define (intersection-set-ordered-list set1 set2)
+  (if (or (null? set1) (null? set2))
+      '()
+      (let ((x1 (car set1)) (x2 (car set2)))
+	(cond ((= x1 x2)
+	       (cons x1
+		     (intersection-set-ordered-list (cdr set1)
+				       (cdr set2))))
+	      ((< x1 x2)
+	       (intersection-set-ordered-list (cdr set1) set2))
+	      ((< x2 x1)
+	       (intersection-set-ordered-list set1 (cdr set2)))))))
+;Value: intersection-set-ordered-list
+
+(define (union-set-ordered-list set1 set2)
+  (cond ((null? set1) set2)
+	((null? set2) set1)
+	(else (let ((x1 (car set1)) (x2 (car set2)))
+		(cond ((= x1 x2)
+		       (cons x1 (union-set-ordered-list
+				 (cdr set1)
+				 (cdr set2))))
+		      ((< x1 x2)
+		       (cons x1 (union-set-ordered-list
+				 (cdr set1)
+				 set2)))
+		      (else
+		       (cons x2 (union-set-ordered-list
+				 set1
+				 (cdr set2)))))))))
+;Value: union-set-ordered-list
+
+
+
+
+
+
+
+
+
+
+
+
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+	((equal? x (car set)) true)
+	(else (element-of-set? x (cdr set)))))
+O(n) : 0(n+d)
+
+(define (adjoin-set x set)
+      (cons x set))
+O(n) : O(1)
+
+(define (intersection-set set1 set2)
+  (cond ((or (null? set1) (null? set2)) '())
+	((element-of-set? (car set1) set2)
+	 (cons (car set1)
+	       (intersection-set (cdr set1) set2)))
+	(else (intersection-set (cdr set1) set2))))
+
+(define (union-set set1 set2) (append set1 set2))
+O(nm) : O(n+d)
+
+;Value: union-set
+
+(intersection-set '(1 2 3 4) '(4 8 3 6))
+
+;Value 14: (3 4)
+
+
+
+
+Copyright (C) 2014 Massachusetts Institute of Technology
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Image saved on Saturday May 17, 2014 at 2:39:25 AM
+  Release 9.2 || Microcode 15.3 || Runtime 15.7 || SF 4.41 || LIAR/x86-64 4.118
+  Edwin 3.116
+;You are in an interaction window of the Edwin editor.
+;Type `C-h' for help, or `C-h t' for a tutorial.
+;`C-h m' will describe some commands.
+;`C-h' means: hold down the Ctrl key and type `h'.
+;Package: (user)
+
