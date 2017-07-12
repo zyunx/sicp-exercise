@@ -1,0 +1,31 @@
+(define (make-account balance password)
+  (define (withdraw m)
+    (if (>= balance m)
+	(begin (set! balance (- balance m))
+	       balance)
+	"Insufficient funds"))
+
+  (define (deposit m)
+    (set! balance (+ balance m))
+    balance)
+
+  (define (dispatch pass m)
+    (if (not (eq? pass password))
+	(lambda (x) "Incorrect password")
+	(cond ((eq? m 'withdraw) withdraw)
+	      ((eq? m 'deposit) deposit)
+	      (else (error "Unknown message")))))
+
+  dispatch)
+;Value: make-account
+
+(define acc (make-account 100 'secret))
+;Value: acc
+
+((acc 'secret 'withdraw) 40)
+;Value: 60
+
+;Value 14: "Incorrect password"
+
+((acc 'secret 'deposit) 100)
+;Value: 160
