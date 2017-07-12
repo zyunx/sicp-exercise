@@ -1,0 +1,45 @@
+(define (make-account balance password)
+  (let ((password-wrong-times 0))
+
+    (define (withdraw m)
+      (if (>= balance m)
+	  (begin (set! balance (- balance m))
+		 balance)
+	  "Insufficient funds"))
+
+    (define (deposit m)
+      (set! balance (+ balance m))
+      balance)
+
+    (define (call-the-cops)
+      "Call the cops")
+
+    (define (dispatch pass m)
+      (if (not (eq? pass password))
+	  (lambda (x)
+	    (set! password-wrong-times (+ password-wrong-times 1))
+	    (if (> password-wrong-times 3)
+		(call-the-cops)
+		"Incorrect password"))
+	  (begin (set! password-wrong-times 0)
+		 (cond ((eq? m 'withdraw) withdraw)
+		       ((eq? m 'deposit) deposit)
+		       (else (error "Unknown message"))))))
+  dispatch))
+;Value: make-account
+
+(define acc (make-account 100 'secret))
+;Value: acc
+
+((acc 'secret 'withdraw) 40)
+;Value: 60
+
+((acc 'secre 'deposit) 100)
+;Value 19: "Call the cops"
+
+;Value 18: "Incorrect password"
+
+;Value 18: "Incorrect password"
+
+;Value 18: "Incorrect password"
+
