@@ -1,0 +1,30 @@
+(define (make-monitored proc)
+  (let ((count 0))
+    (define (how-many-calls?) count)
+    
+    (define (reset-count!) (set! count 0))
+
+    (define (dispatch m)
+      (cond ((eq? m 'how-many-calls?)
+	     (how-many-calls?))
+	    ((eq? m 'reset-count!)
+	     (reset-count!) 0)
+	    (else (begin (set! count (+ count 1))
+			 (proc m)))))
+
+    dispatch))
+;Value: make-monitored
+
+(define s (make-monitored sqrt))
+;Value: s
+
+(s 100)
+;Value: 10
+
+(s 'how-many-calls?)
+;Value: 0
+
+;Value: 1
+
+(s 'reset-count!)
+;Value: 0
