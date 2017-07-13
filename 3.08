@@ -1,0 +1,15 @@
+(define (make-f p)
+  (lambda (val)
+    (set! p (* p val))
+    p))
+;Value: make-f
+
+(define f (make-f 1))
+;Value: f
+
+(+ (f 0) (f 1))
+;Value: 1
+
+(+ (f 1) (f 0))
+;Value: 0
+
