@@ -1,0 +1,19 @@
+(define (make-rand seed)
+  (define (generate)
+    (set! seed (rand-update seed))
+    seed)
+
+  (define (reset val)
+    (set! seed val))
+
+  (define (dispatch m)
+    (cond ((eq? m 'generate)
+	   generate)
+	  ((eq? m 'reset)
+	   reset)
+	  (else
+	   ("Unknown message"))))
+
+  dispatch)
+;Value: make-rand
+
