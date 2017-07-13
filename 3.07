@@ -1,0 +1,51 @@
+(define (make-account balance password)
+
+  (define (make-internal-account balance)
+    (define (withdraw m)
+      (if (>= balance m)
+	  (begin (set! balance (- balance m))
+		 balance)
+	  "Insufficient funds"))
+
+    (define (deposit m)
+      (set! balance (+ balance m))
+      balance)
+
+    (define (dispatch m)
+      (cond ((eq? m 'withdraw) withdraw)
+	    ((eq? m 'deposit) deposit)
+	    (else (error "Unknown message"))))
+
+    dispatch)
+
+  (define (make-joint acc)
+    (lambda (newpass)
+      (make-protected-account acc newpass)))
+
+  (define (make-protected-account acc pass)
+    (define (dispatch p m)
+      (if (eq? p pass)
+	  (cond ((eq? m 'make-joint)
+		 (make-joint acc))
+		(else (acc m)))
+	  (lambda () "Incorrect password")))
+    dispatch)
+
+  (make-protected-account (make-internal-account balance) password))
+;Value: make-account
+
+(define paul-acc (make-account 100 'ppp))
+;Value: paul-acc
+
+((paul-acc 'ppp 'withdraw) 10)
+;Value: 90
+
+(define (make-joint account pass newpass)
+  ((account pass 'make-joint) newpass))
+;Value: make-joint
+
+(define peter-acc (make-joint paul-acc 'ppp 'pass))
+;Value: peter-acc
+
+((peter-acc 'pass 'withdraw) 10)
+;Value: 70
