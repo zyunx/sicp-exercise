@@ -1,0 +1,39 @@
+(define (monte-carlo trials experiment)
+  (define (iter trials-remaining trials-passed)
+    (cond ((= trials-remaining 0)
+	   (/ trials-passed trials))
+	  ((experiment)
+	   (iter (- trials-remaining 1) (+ trials-passed 1)))
+	  (else
+	   (iter (- trials-remaining 1) trials-passed))))
+  (iter trials 0))
+
+(define (estimate-intergral p x1 x2 y1 y2 trials)
+  (* (monte-carlo trials p)
+     (* (- x2 x1)
+	(- y2 y1))))
+;Value: estimate-intergral
+
+(define (random-in-range low high)
+  (let ((range (- high low)))
+    (+ low (random range))))
+;Value: random-in-range
+
+(define (in-circle? x y cx cy r)
+  (<= (+ (square (- x cx))
+	 (square (- y cy)))
+      (square r)))
+;Value: in-circle?
+
+(define (make-experiment cx cy r x1 x2 y1 y2)
+  (lambda () (in-circle? (random-in-range x1 x2)
+			 (random-in-range y1 y2)
+			 cx
+			 cy
+			 r)))
+;Value: make-experiment
+
+(estimate-intergral (make-experiment 5.0 7.0 3.0 2.0 4.0 8.0 10.0)
+		    2.0 4.0 8.0 10.0
+		    10000)
+
