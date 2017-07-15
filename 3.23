@@ -1,0 +1,110 @@
+(define (make-deque)
+
+  (define (make-node item)
+    (list item '() '()))
+
+  (define (item-node node) (car node))
+
+  (define (prev-node node) (cadr node))
+
+  (define (next-node node) (caddr node))
+
+  (define (set-item-node! node item)
+    (set-car! node item))
+
+  (define (set-prev-node! node prev)
+    (set-car! (cdr node) prev))
+
+  (define (set-next-node! node next)
+    (set-car! (cddr node) next))
+
+  (let ((front-ptr '()))
+    
+    (define (empty?)
+      (null? front-ptr))
+
+    (define (front)
+      (if (empty?)
+	  (error "FRONT! queue is empty")
+	  (item-node front-ptr)))
+
+    (define (rear)
+      (if (empty?)
+	  (error "REAR! qeue is empty" front-ptr)
+	  (item-node (prev-node front-ptr))))
+
+    (define (rear-insert! item)
+      (let ((new-node (make-node item)))
+	(if (empty?)
+	    (begin (set-prev-node! new-node new-node)
+		   (set-next-node! new-node new-node)
+		   (set! front-ptr new-node))
+	    (begin (set-prev-node! new-node (prev-node front-ptr))
+		   (set-next-node! new-node front-ptr)
+		   (set-next-node! (prev-node new-node) new-node)
+		   (set-prev-node! (next-node new-node) new-node))))
+      dispatch)
+    
+    (define (front-insert! item)
+      (rear-insert! item)
+      (set! front-ptr (prev-node front-ptr))
+      dispatch)
+     
+    (define (front-delete!)
+      (if (empty?)
+	  (error "FRONT-DELETE! queue is empty" front-ptr)
+	  (if (eq? (prev-node front-ptr) front-ptr)
+	      (set! front-ptr '())
+	      (begin (set-next-node! (prev-node front-ptr)
+				     (next-node front-ptr))
+		     (set-prev-node! (next-node front-ptr)
+				     (prev-node front-ptr))
+		     (set! front-ptr (next-node front-ptr)))))
+      dispatch)
+
+    (define (rear-delete!)
+      (if (empty?)
+	  (error "REAR-DELETE! queue is empty" front-ptr)
+	  (begin (set! front-ptr (prev-node front-ptr))
+		 (front-delete!)))
+      dispatch)
+
+    (define (print)
+      (define (print-rest ptr)
+	(if (not (eq? ptr front-ptr))
+	    (begin (display ",")
+		   (display (item-node ptr))
+		   (print-rest (next-node ptr)))))
+      (if (not (empty?))
+	  (begin (display (item-node front-ptr))
+		 (print-rest (next-node front-ptr)))))
+	  
+    (define (dispatch m)
+      (cond ((eq? m 'empty?) empty?)
+	    ((eq? m 'front) front)
+	    ((eq? m 'rear) rear)
+	    ((eq? m 'front-insert!) front-insert!)
+	    ((eq? m 'front-delete!) front-delete!)
+	    ((eq? m 'rear-insert!) rear-insert!)
+	    ((eq? m 'rear-delete!) rear-delete!)
+	    ((eq? m 'print) print)
+	    (else
+	     (error "UNKNOWN MESSAGE - queue"))))
+
+    dispatch))
+;Value: make-deque
+
+(define q1 (make-deque))
+;Value: q1
+
+((q1 'print))
+;Unspecified return value
+
+((q1 'empty?))
+;Value: #t
+
+((((q1 'rear-insert!) 'd) 'print))
+
+((((q1 'rear-delete!)) 'print))
+
+((q1 'rear))
