@@ -1,0 +1,49 @@
+(define (count-pairs x)
+  (let ((pair-set '()))
+    (define (count-pairs-r x)
+      (if (and (pair? x)
+	       (not (memq x pair-set)))
+	  (begin (set! pair-set (cons x pair-set))
+		 (+ (count-pairs-r (car x))
+		    (count-pairs-r (cdr x))
+		    1))
+	  0))
+    (count-pairs-r x)))
+;Value: count-pairs
+
+(define p1 (cons 'a1 (cons 'a2 (cons '3 '()))))
+;Value: p1
+
+(count-pairs p1)
+;Value: 3
+
+(define p2 (list 't))
+;Value: p2
+(define p3 (cons p2 (cons 'b p2)))
+;Value: p3
+p3
+;Value 23: ((t) b t)
+
+(count-pairs p3)
+;Value: 3
+
+(define p4 (cons p2 p2))
+;Value: p4
+(define p5 (cons p4 p4))
+;Value: p5
+(count-pairs p5)
+;Value: 3
+
+(define (last-pair x)
+  (if (null? (cdr x))
+      x
+      (last-pair (cdr x))))
+;Value: last-pair
+
+(define (make-cycle x)
+  (set-cdr! (last-pair x) x)
+  x)
+;Value: make-cycle
+
+(count-pairs (make-cycle (list 'a 'b 'c)))
+;Value: 3
