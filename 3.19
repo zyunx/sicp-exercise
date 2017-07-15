@@ -1,0 +1,94 @@
+(define (last-pair x)
+  (if (null? (cdr x))
+      x
+      (last-pair (cdr x))))
+;Value: last-pair
+
+(last-pair '(a b c))
+;Value 14: (c)
+
+(define (make-cycle x)
+  (set-cdr! (last-pair x) x)
+  x)
+;Value: make-cycle
+
+(define (detect-cycle x)
+  (define (pursue p1 p2)
+    (cond ((or (null? p1)
+	       (null? p2))
+	   false)
+	  ((eq? p1 p2)
+	   true)
+	  (else (pursue (one-step p1) (two-step p2)))))
+  
+  (define (one-step p1)
+    (if (null? p1)
+	p1
+	(cdr p1)))
+
+  (define (two-step p2)
+    (one-step (one-step p2)))
+
+  (pursue (one-step x) (two-step x)))
+;Value: detect-cycle
+
+(detect-cycle '(a b c))
+;Value: #f
+
+(detect-cycle (make-cycle '(a b c)))
+;Value: #t
+
+
+;The object #!unspecific, passed as the first argument to cdr, is not the correct type.
+;To continue, call RESTART with an option number:
+; (RESTART 5) => Specify an argument to use in its place.
+; (RESTART 4) => Return to read-eval-print level 4.
+; (RESTART 3) => Return to read-eval-print level 3.
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+
+;Unbound variable: make-cycle
+;To continue, call RESTART with an option number:
+; (RESTART 5) => Specify a value to use instead of make-cycle.
+; (RESTART 4) => Define make-cycle to a given value.
+; (RESTART 3) => Return to read-eval-print level 3.
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+
+
+;Unbound variable: dectect-cycle
+;To continue, call RESTART with an option number:
+; (RESTART 4) => Specify a value to use instead of dectect-cycle.
+; (RESTART 3) => Define dectect-cycle to a given value.
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+
+;Unbound variable: dectect
+;To continue, call RESTART with an option number:
+; (RESTART 3) => Specify a value to use instead of dectect.
+; (RESTART 2) => Define dectect to a given value.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+
+
+
+Copyright (C) 2014 Massachusetts Institute of Technology
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Image saved on Saturday May 17, 2014 at 2:39:25 AM
+  Release 9.2 || Microcode 15.3 || Runtime 15.7 || SF 4.41 || LIAR/x86-64 4.118
+  Edwin 3.116
+;You are in an interaction window of the Edwin editor.
+;Type `C-h' for help, or `C-h t' for a tutorial.
+;`C-h m' will describe some commands.
+;`C-h' means: hold down the Ctrl key and type `h'.
+;Package: (user)
+
