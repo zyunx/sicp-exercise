@@ -38,57 +38,12 @@
 (detect-cycle (make-cycle '(a b c)))
 ;Value: #t
 
+(define t '(t))
+;Value: t
 
-;The object #!unspecific, passed as the first argument to cdr, is not the correct type.
-;To continue, call RESTART with an option number:
-; (RESTART 5) => Specify an argument to use in its place.
-; (RESTART 4) => Return to read-eval-print level 4.
-; (RESTART 3) => Return to read-eval-print level 3.
-; (RESTART 2) => Return to read-eval-print level 2.
-; (RESTART 1) => Return to read-eval-print level 1.
-;Start debugger? (y or n): n
+(set-cdr! t (make-cycle '(a b c)))
 
+(detect-cycle t)
+;Value: #t
 
-;Unbound variable: make-cycle
-;To continue, call RESTART with an option number:
-; (RESTART 5) => Specify a value to use instead of make-cycle.
-; (RESTART 4) => Define make-cycle to a given value.
-; (RESTART 3) => Return to read-eval-print level 3.
-; (RESTART 2) => Return to read-eval-print level 2.
-; (RESTART 1) => Return to read-eval-print level 1.
-;Start debugger? (y or n): n
-
-
-
-;Unbound variable: dectect-cycle
-;To continue, call RESTART with an option number:
-; (RESTART 4) => Specify a value to use instead of dectect-cycle.
-; (RESTART 3) => Define dectect-cycle to a given value.
-; (RESTART 2) => Return to read-eval-print level 2.
-; (RESTART 1) => Return to read-eval-print level 1.
-;Start debugger? (y or n): n
-
-
-;Unbound variable: dectect
-;To continue, call RESTART with an option number:
-; (RESTART 3) => Specify a value to use instead of dectect.
-; (RESTART 2) => Define dectect to a given value.
-; (RESTART 1) => Return to read-eval-print level 1.
-;Start debugger? (y or n): n
-
-
-
-
-Copyright (C) 2014 Massachusetts Institute of Technology
-This is free software; see the source for copying conditions. There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-Image saved on Saturday May 17, 2014 at 2:39:25 AM
-  Release 9.2 || Microcode 15.3 || Runtime 15.7 || SF 4.41 || LIAR/x86-64 4.118
-  Edwin 3.116
-;You are in an interaction window of the Edwin editor.
-;Type `C-h' for help, or `C-h t' for a tutorial.
-;`C-h m' will describe some commands.
-;`C-h' means: hold down the Ctrl key and type `h'.
-;Package: (user)
 
