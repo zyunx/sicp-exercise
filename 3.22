@@ -1,0 +1,59 @@
+(define (make-queue)
+  (let ((front-ptr '())
+	(rear-ptr '())
+	(items '()))
+    
+    (define (empty?)
+      (null? front-ptr))
+
+    (define (front)
+      (if (empty?)
+	  (error "FRONT! queue is empty" front-ptr)
+	  (car front-ptr)))
+
+    (define (insert! item)
+      (let ((new-item (cons item '())))
+	(if (empty?)
+	    (begin (set! items new-item)
+		   (set! front-ptr items)
+		   (set! rear-ptr items))
+	    (begin (set-cdr! rear-ptr new-item)
+		   (set! rear-ptr new-item))))
+      front-ptr)
+    
+    (define (delete!)
+      (if (empty?)
+	  (error "DELETE! queue is empty" front-ptr)
+	  (set! front-ptr (cdr front-ptr)))
+      front-ptr)
+
+    (define (dispatch m)
+      (cond ((eq? m 'empty?) empty?)
+	    ((eq? m 'front) front)
+	    ((eq? m 'insert!) insert!)
+	    ((eq? m 'delete!) delete!)
+	    (else
+	     (error "UNKNOWN MESSAGE - queue"))))
+
+    dispatch))
+;Value: make-queue
+
+(define q1 (make-queue))
+;Value: q1
+
+((q1 'empty?))
+;Value: #t
+
+((q1 'insert!) 'a)
+;Value 17: (a)
+
+((q1 'insert!) 'b)
+;Value 17: (a b)
+
+((q1 'delete!))
+;Value: ()
+
+;Value 18: (b)
+
+((q1 'front))
+
