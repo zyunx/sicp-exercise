@@ -1,0 +1,127 @@
+(define (make-table same-key?)
+
+  (define (assoc key records)
+    (cond ((null? records) false)
+	  ((same-key? key (caar records)) (car records))
+	  (else (assoc key (cdr records)))))
+
+  (define (make-node key val records)
+    (list key val records))
+
+  (define (key-node node) (car node))
+
+  (define (val-node node) (cadr node))
+
+  (define (records-node node) (caddr node))
+
+  (define (set-key-node! key node)
+    (set-car! node key))
+
+  (define (set-val-node! val node)
+    (set-car! (cdr node) val))
+
+  (define (set-records-node! records node)
+    (set-car! (cddr node) records))
+
+  (let ((local-table (make-node '*table* false '())))
+
+    (define (lookup-internal keys current-table)
+      (if (null? keys)
+	  (val-node current-table)
+	  (let ((subtable (assoc (car keys) (records-node current-table))))
+	    (if subtable
+		(lookup-internal (cdr keys) subtable)
+		false))))
+
+    (define (lookup keys) (lookup-internal keys local-table))
+
+
+    (define (insert-internal! keys value current-table)
+      (if (null? keys)
+	  (set-val-node! value current-table)
+	  (let ((subtable (assoc (car keys) (records-node current-table))))
+	    (if (not subtable)
+		(begin (set! subtable
+			     (make-node (car keys)
+					false
+					'()))
+		       (set-records-node! (cons subtable
+					       (records-node current-table))
+					 current-table)))
+	    (insert-internal! (cdr keys) value subtable)))
+      'ok)
+
+    (define (insert! keys value)
+      (insert-internal! keys value local-table))
+	
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+	    ((eq? m 'insert-proc) insert!)
+	    (else (error "Unknown operation - TABLE" m))))
+
+    dispatch))
+;Value: make-table
+
+(define (same-key? test-key record-key)
+  (if (number? record-key)
+      (< (abs (- test-key record-key)) 3)
+      (equal? test-key record-key)))
+;Value: same-key?
+
+(define t (make-table same-key?))
+;Value: t
+
+((t 'lookup-proc) '(3 10))
+;Value: aaa
+((t 'lookup-proc) '(1 3 3))
+;Value: 123
+
+
+((t 'insert-proc) '(3) 'a)
+;Value: ok
+
+((t 'insert-proc) '(1 2 3) 123)
+;Value: ok
+((t 'insert-proc) '(3 10) 'AAA)
+;Value: ok
+
+
+
+
+
+
+;The procedure #[compound-procedure 14 lookup] has been called with 3 arguments; it requires exactly 2 arguments.
+;To continue, call RESTART with an option number:
+; (RESTART 3) => Return to read-eval-print level 3.
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+
+;The procedure #[compound-procedure 14 lookup] has been called with 1 argument; it requires exactly 2 arguments.
+;To continue, call RESTART with an option number:
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+
+;Ill-formed special form: (if (record ... false))
+;To continue, call RESTART with an option number:
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+
+
+Copyright (C) 2014 Massachusetts Institute of Technology
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Image saved on Saturday May 17, 2014 at 2:39:25 AM
+  Release 9.2 || Microcode 15.3 || Runtime 15.7 || SF 4.41 || LIAR/x86-64 4.118
+  Edwin 3.116
+;You are in an interaction window of the Edwin editor.
+;Type `C-h' for help, or `C-h t' for a tutorial.
+;`C-h m' will describe some commands.
+;`C-h' means: hold down the Ctrl key and type `h'.
+;Package: (user)
+
