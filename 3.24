@@ -1,0 +1,54 @@
+(define (make-table same-key?)
+  (define (assoc key records)
+    (cond ((null? records) false)
+	  ((same-key? key (caar records)) (car records))
+	  (else (assoc key (cdr records)))))
+
+  (let ((local-table (list '*table*)))
+    (define (lookup key-1 key-2)
+      (let ((subtable (assoc key-1 (cdr local-table))))
+	(if subtable
+	    (let ((record (assoc key-2 (cdr subtable))))
+	      (if record
+		   (cdr record)
+		   false))
+	    false)))
+
+    (define (insert! key-1 key-2 value)
+      (let ((subtable (assoc key-1 (cdr local-table))))
+	(if subtable
+	    (let ((record (assoc key-2 (cdr subtable))))
+	      (if record
+		  (set-cdr! record value)
+		  (set-cdr! subtable
+			    (cons (cons key-2 value)
+				  (cdr subtable)))))
+	    (set-cdr! local-table
+		      (cons (list key-1
+				  (cons key-2 value))
+			    (cdr local-table)))))
+      'ok)
+
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+	    ((eq? m 'insert-proc) insert!)
+	    (else (error "Unknown operation - TABLE" m))))
+
+    dispatch))
+;Value: make-table
+
+
+(define (same-key? test-key record-key)
+  (if (number? record-key)
+      (< (abs (- test-key record-key)) 3)
+      (equal? test-key record-key)))
+;Value: same-key?
+
+(define t (make-table same-key?))
+;Value: t
+
+((t 'lookup-proc) 1 'k2)
+;Value: a
+
+((t 'insert-proc) 3 'k2 'a)
+;Value: ok
