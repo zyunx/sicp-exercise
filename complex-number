@@ -1,0 +1,262 @@
+(define (make-table same-key?)
+
+  (define (assoc key records)
+    (cond ((null? records) false)
+	  ((same-key? key (caar records)) (car records))
+	  (else (assoc key (cdr records)))))
+
+  (define (make-node key val records)
+    (list key val records))
+
+  (define (key-node node) (car node))
+
+  (define (val-node node) (cadr node))
+
+  (define (records-node node) (caddr node))
+
+  (define (set-key-node! key node)
+    (set-car! node key))
+
+  (define (set-val-node! val node)
+    (set-car! (cdr node) val))
+
+  (define (set-records-node! records node)
+    (set-car! (cddr node) records))
+
+  (let ((local-table (make-node '*table* false '())))
+
+    (define (lookup-internal keys current-table)
+      (if (null? keys)
+	  (val-node current-table)
+	  (let ((subtable (assoc (car keys) (records-node current-table))))
+	    (if subtable
+		(lookup-internal (cdr keys) subtable)
+		false))))
+
+    (define (lookup keys) (lookup-internal keys local-table))
+
+
+    (define (insert-internal! keys value current-table)
+      (if (null? keys)
+	  (set-val-node! value current-table)
+	  (let ((subtable (assoc (car keys) (records-node current-table))))
+	    (if (not subtable)
+		(begin (set! subtable
+			     (make-node (car keys)
+					false
+					'()))
+		       (set-records-node! (cons subtable
+					       (records-node current-table))
+					 current-table)))
+	    (insert-internal! (cdr keys) value subtable)))
+      'ok)
+
+    (define (insert! keys value)
+      (insert-internal! keys value local-table))
+	
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+	    ((eq? m 'insert-proc) insert!)
+	    (else (error "Unknown operation - TABLE" m))))
+
+    dispatch))
+;Value: make-table
+
+(define (same-key? k dk)
+  (if (and (pair? k) (pair? dk))
+      (and (same-key? (car k) (car dk)) (same-key? (cdr k) (cdr dk)))
+      (eq? k dk)))
+;Value: same-key?
+
+(define operation-table (make-table same-key?))
+;Value: operation-table
+(define get (operation-table 'lookup-proc))
+;Value: get
+(define put (operation-table 'insert-proc))
+;Value: put
+
+(define (add-complex z1 z2)
+  (make-from-real-imag (+ (real-part z1) (real-part z2))
+		       (+ (imag-part z1) (imag-part z2))))
+;Value: add-complex
+
+(define (sub-complex z1 z2)
+  (make-from-real-imag (- (real-part z1) (real-part z2))
+		       (- (imag-part z1) (imag-part z2))))
+;Value: sub-complex
+
+(define (mul-complex z1 z2)
+  (make-from-mag-ang (* (magnitude z1) (magnitude z2))
+		     (+ (angle z1) (angle z2))))
+;Value: mul-complex
+
+(define (div-complex z1 z2)
+  (make-from-mag-ang (/ (magnitude z1) (magnitude z2))
+		     (- (angle z1) (angle z2))))
+;Value: div-complex
+
+; generic operations
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get (list op type-tags))))
+      (if proc
+	  (apply proc (map contents args))
+	  (error
+	   "No method for these types -- APPLY-GENERIC"
+	   (list op type-tags))))))
+;Value: apply-generic
+
+(define (real-part z) (apply-generic 'real-part z))
+;Value: real-part
+
+(define (imag-part z) (apply-generic 'imag-part z))
+;Value: imag-part
+
+(define (magnitude z) (apply-generic 'magnitude z))
+;Value: magnitude
+
+(define (angle z) (apply-generic 'angle z))
+;Value: angle
+
+; rectanglar representation
+(define (install-rectangular-package)
+  ;; internal procedures
+  (define (make-from-mag-ang r a)
+    (cons (* r (cos a))
+	  (* r (sin a))))
+
+  (define (make-from-real-imag x y)
+    (cons x y))
+
+  (define (real-part z) (car z))
+
+  (define (imag-part z) (cdr z))
+
+  (define (magnitude z)
+    (sqrt (+ (square (real-part z))
+	     (square (imag-part z)))))
+
+  (define (angle z)
+    (atan (imag-part z) (real-part z)))
+
+  ;; interface to the rest of system
+  (define (tag x) (attach-tag 'rectangular x))
+  (put '(real-part (rectangular)) real-part)
+  (put '(imag-part (rectangular)) imag-part)
+  (put '(magnitude (rectangular)) magnitude)
+  (put '(angle (rectangular)) angle)
+  (put '(make-from-real-imag rectangular)
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put '(make-from-mag-ang rectangular)
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+
+  'done)
+;Value: install-rectangular-package
+
+;; magnitude angle representation
+(define (install-polar-package)
+  ;; internal procedures
+  (define (make-from-real-imag x y)
+    (cons (sqrt (+ (square x) (square y)))
+	  (atan y x)))
+  (define (make-from-mag-ang r a) (cons r a))
+  (define (real-part z)
+    (* (magnitude z) (cos (angle z))))
+  (define (imag-part z)
+    (* (magnitude z) (sin (angle z))))
+  (define (magnitude x) (car x))
+  (define (angle x) (cdr x))
+
+  ;; interface to the rest of the system
+  (define (tag x) (attach-tag 'polar x))
+  (put '(real-part (polar)) real-part)
+  (put '(imag-part (polar)) imag-part)
+  (put '(magnitude (polar)) magnitude)
+  (put '(angle (polar)) angle)
+  (put '(make-from-real-imag polar)
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put '(make-from-mag-ang polar)
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+
+  'done)
+;Value: install-polar-package
+
+; type tags
+(define (attach-tag type-tag contents)
+  (cons type-tag contents))
+;Value: attach-tag
+
+(define (type-tag datum)
+  (if (pair? datum)
+      (car datum)
+      (error "Bad tagged datum -- TYPE-TAG" datum)))
+;Value: type-tag
+
+(define (contents datum)
+  (if (pair? datum)
+      (cdr datum)
+      (error "Bad tagged data -- CONTENTS" datum)))
+;Value: contents
+
+(define (rectangular? z)
+  (eq? (type-tag z) 'rectangular))
+;Value: rectangular?
+
+(define (polar? z)
+  (eq? (type-tag z) 'polar))
+;Value: polar?
+
+
+;; rectangular constructor
+(define (make-from-real-imag x y)
+  ((get (list 'make-from-real-imag 'rectangular)) x y))
+;Value: make-from-real-imag
+
+(define (make-from-mag-ang r a)
+  ((get (list 'make-from-mag-ang 'rectangular)) r a))
+;Value: make-from-mag-ang
+
+
+;; polar constructor
+(define (make-from-real-img x y)
+  ((get '(make-from-real-imag polar)) x y))
+;Value: make-from-real-img
+
+(define (make-from-mag-ang r a)
+  ((get '(make-from-mag-ang polar)) r a))
+;Value: make-from-mag-ang
+
+
+(install-rectangular-package)
+(install-polar-package)
+
+(define z1 (make-from-mag-ang 2 (/ 3.14159 3)))
+;Value: z1
+z1
+;Value 26: (rectangular 1.0000015320503906 . 1.7320499230382684)
+
+(define z2 (make-from-mag-ang 2 (/ 3.14159 6)))
+;Value: z2
+z2
+;Value 25: (rectangular 1.7320512498336735 . .9999992339745114)
+
+
+(magnitude (mul-complex z1 z2))
+;Value: 4.
+
+(angle (mul-complex z1 z2))
+;Value: 1.570795
+
+(div-complex z1 z2)
+;Value 27: (rectangular .8660256249168368 . .4999996169872557)
+;Value 24: (polar 1 . .5235983333333333)
+
+(magnitude (div-complex z1 z2))
+;Value: 1.
+;Value: 1
+
+(angle (div-complex z1 z2))
+;Value: .5235983333333333
+;Value: .5235983333333333
+
+
