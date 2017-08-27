@@ -1,0 +1,44 @@
+(define sum 0)
+;Value: sum
+
+(define (accum x)
+  (set! sum (+ x sum))
+  sum)
+;Value: accum
+
+(define seq (stream-map accum (stream-enumerate-interval 1 20)))
+;Value: seq
+
+(define y (stream-filter even? seq))
+;Value: y
+
+(define z (stream-filter (lambda (x) (= (remainder x 5) 0))
+			 seq))
+;Value: z
+
+(stream-ref y 7)
+;Value: 136
+
+(define (display-stream z)
+  (if (not (stream-null? z))
+      (begin (display-line (stream-car z))
+	     (display-stream (stream-cdr z)))))
+;Value: display-stream
+      
+(display-stream z)
+
+sum
+;Value: 210
+
+
+;Value: 136
+
+
+;Value: 10
+
+
+;Value: 6
+
+
+;Value: 1
+
