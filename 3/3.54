@@ -1,0 +1,43 @@
+(define s (cons-stream 1 (add-streams s s)))
+;Value: s
+
+(define (add-streams s1 . ss)
+  (apply stream-map (cons + (cons s1 ss))))
+;Value: add-streams
+
+(stream-ref s 4)
+;Value: 16
+;Value: 8
+;Value: 4
+;Value: 2
+;Value: 1
+
+(define (mul-streams s1 . ss)
+  (apply stream-map (cons * (cons s1 ss))))
+;Value: mul-streams
+
+(define ones (cons-stream 1 ones))
+;Value: ones
+
+(define integers (cons-stream 1 (add-streams ones integers)))
+;Value: integers
+
+
+(define factorials (cons-stream 1
+				(mul-streams factorials
+					     (add-streams ones
+							  integers))))
+;Value: factorials
+
+
+(stream-ref factorials 4)
+;Value: 120
+;Value: 24
+;Value: 6
+;Value: 2
+
+
+
+
+
+
