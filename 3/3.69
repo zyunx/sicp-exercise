@@ -1,0 +1,30 @@
+(load "~/sicp-exercise/common/stream.scm")
+;Loading "common/stream.scm"... done
+;Value: stream-flatmap
+
+
+(define pyth-triples
+  (let ((pairs (stream-flatmap
+		(lambda (x) (stream-map (lambda (i) (list x i))
+					(integers-start-at x)))
+		integers)))
+    (stream-map (lambda (p) (append p (list (+ (square (car p))
+					       (square (cadr p))))))
+		pairs)))
+;Value: pyth-triples
+
+(display-stream pyth-triples 10)
+
+(1 1 2)
+(1 2 5)
+(2 2 8)
+(1 3 10)
+(2 3 13)
+(1 4 17)
+(3 3 18)
+(1 5 26)
+(2 4 20)
+(1 6 37)
+;Value: end
+
+
