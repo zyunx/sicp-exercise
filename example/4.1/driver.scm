@@ -5,6 +5,7 @@
 
 (load "./4/4.04a.scm")
 (load "./4/4.06.scm")
+(load "./4/4.07.scm")
 
 (define the-global-environment (setup-environment))
 (driver-loop)
