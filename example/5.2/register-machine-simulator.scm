@@ -82,6 +82,9 @@
           (if (null? insts)
             'done
             (begin
+              ;(display "R:")
+              ;(display (instruction-text (car insts)))
+              ;(newline)
               ((instruction-execution-proc (car insts)))
               (execute)))))
       (define (dispatch message)
@@ -157,7 +160,6 @@
 (define (instruction-execution-proc inst)
   (cdr inst))
 (define (set-instruction-execution-proc! inst proc)
-  ;(display "S:") (display inst) (newline)
   (set-cdr! inst proc))
 
 ;; label
@@ -270,7 +272,7 @@
   (let ((reg (get-register machine
                            (stack-inst-reg-name inst))))
     (lambda ()
-      (set-contents reg (pop stack))
+      (set-contents! reg (pop stack))
       (advance-pc pc))))
 (define (stack-inst-reg-name stack-instruction)
   (cadr stack-instruction))
